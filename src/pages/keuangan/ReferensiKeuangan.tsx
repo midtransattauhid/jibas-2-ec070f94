@@ -241,10 +241,10 @@ function TabJenisPengeluaran() {
             </div>
             <div>
               <Label>Akun Beban (untuk jurnal otomatis)</Label>
-              <Select value={akunBebanId} onValueChange={setAkunBebanId}>
+              <Select value={akunBebanId || "__none__"} onValueChange={(v) => setAkunBebanId(v === "__none__" ? "" : v)}>
                 <SelectTrigger><SelectValue placeholder="Pilih akun beban..." /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">— Tidak diset —</SelectItem>
+                  <SelectItem value="__none__">— Tidak diset —</SelectItem>
                   {akunBebanList?.map((a: any) => (
                     <SelectItem key={a.id} value={a.id}>{a.kode} - {a.nama}</SelectItem>
                   ))}
