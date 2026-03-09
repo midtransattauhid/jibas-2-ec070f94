@@ -116,14 +116,37 @@ export default function Buletin() {
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.judul.trim() || !form.konten.trim()) { toast.error("Judul dan konten wajib diisi"); return; }
+
+    let lampiran_url = form.lampiran_url;
+    let lampiran_nama = form.lampiran_nama;
+
+    // Upload file if selected
+    if (selectedFile) {
+      const ext = selectedFile.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("dokumen-buletin").upload(path, selectedFile);
+      if (uploadErr) { toast.error("Gagal upload file: " + uploadErr.message); return; }
+      lampiran_url = path;
+      lampiran_nama = selectedFile.name;
+    }
+
     saveMut.mutate({
       judul: form.judul, konten: form.konten, kategori: form.kategori,
       target_tipe: form.target_tipe, departemen_id: form.target_tipe === "lembaga" ? form.departemen_id || null : null,
       tanggal_tayang: form.tanggal_tayang, tanggal_kadaluarsa: form.tanggal_kadaluarsa || null,
-      penting: form.penting,
+      penting: form.penting, lampiran_url: lampiran_url || null, lampiran_nama: lampiran_nama || null,
     });
+  };
+
+  const downloadLampiran = async (url: string, nama: string) => {
+    const { data, error } = await supabase.storage.from("dokumen-buletin").download(url);
+    if (error || !data) { toast.error("Gagal download file"); return; }
+    const blobUrl = URL.createObjectURL(data);
+    const a = document.createElement("a");
+    a.href = blobUrl; a.download = nama || "lampiran"; a.click();
+    URL.revokeObjectURL(blobUrl);
   };
 
   return (
