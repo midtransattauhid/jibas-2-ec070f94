@@ -26,7 +26,7 @@ export default function AuditTrail() {
   const { data, isLoading } = useQuery({
     queryKey: ["audit_trail", departemenId, tipeFilter, tanggalDari, tanggalSampai],
     queryFn: async () => {
-      const rows: AuditRow[] = [];
+      const rows: any[] = [];
 
       // Fetch pembayaran (penerimaan)
       if (tipeFilter === "semua" || tipeFilter === "penerimaan") {
