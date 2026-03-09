@@ -137,6 +137,7 @@ const App = () => (
                   <Route path="/keuangan/buku-besar" element={<BukuBesar />} />
                   <Route path="/keuangan/laporan-pengeluaran" element={<LaporanPengeluaran />} />
                   <Route path="/keuangan/penerimaan-lain" element={<LaporanPenerimaanLain />} />
+                  <Route path="/keuangan/online-payment" element={<OnlinePayment />} />
                   <Route path="/keuangan/audit-trail" element={<AuditTrail />} />
                 </Route>
                 {/* Kepegawaian */}
