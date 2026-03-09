@@ -38,6 +38,8 @@ import DataPegawai from "./pages/kepegawaian/DataPegawai";
 import PresensiPegawai from "./pages/kepegawaian/PresensiPegawai";
 import JadwalPegawai from "./pages/kepegawaian/JadwalPegawai";
 import StatistikPegawai from "./pages/kepegawaian/StatistikPegawai";
+import DUK from "./pages/kepegawaian/DUK";
+import CetakBiodata from "./pages/kepegawaian/CetakBiodata";
 import CBE from "./pages/CBE";
 import Simtaka from "./pages/Simtaka";
 import Buletin from "./pages/Buletin";
