@@ -80,7 +80,7 @@ export default function AuditTrail() {
       }
 
       // Sort by tanggal desc
-      rows.sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
+      rows.sort((a: any, b: any) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
       return rows;
     },
   });
