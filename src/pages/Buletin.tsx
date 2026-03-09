@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +15,7 @@ import { useDepartemen } from "@/hooks/useAkademikData";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, AlertTriangle, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle, Search, Paperclip, Download, X } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 
@@ -47,11 +47,13 @@ export default function Buletin() {
   const [editItem, setEditItem] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [form, setForm] = useState({
     judul: "", konten: "", kategori: "Umum", target_tipe: "semua",
     departemen_id: "", tanggal_tayang: format(new Date(), "yyyy-MM-dd"),
-    tanggal_kadaluarsa: "", penting: false,
+    tanggal_kadaluarsa: "", penting: false, lampiran_url: "", lampiran_nama: "",
   });
 
   const { data: depts } = useDepartemen();
@@ -102,24 +104,49 @@ export default function Buletin() {
 
   const openAdd = () => {
     setEditItem(null);
-    setForm({ judul: "", konten: "", kategori: "Umum", target_tipe: "semua", departemen_id: "", tanggal_tayang: format(new Date(), "yyyy-MM-dd"), tanggal_kadaluarsa: "", penting: false });
+    setSelectedFile(null);
+    setForm({ judul: "", konten: "", kategori: "Umum", target_tipe: "semua", departemen_id: "", tanggal_tayang: format(new Date(), "yyyy-MM-dd"), tanggal_kadaluarsa: "", penting: false, lampiran_url: "", lampiran_nama: "" });
     setDialogOpen(true);
   };
 
   const openEdit = (item: any) => {
     setEditItem(item);
-    setForm({ judul: item.judul, konten: item.konten, kategori: item.kategori || "Umum", target_tipe: item.target_tipe || "semua", departemen_id: item.departemen_id || "", tanggal_tayang: item.tanggal_tayang || format(new Date(), "yyyy-MM-dd"), tanggal_kadaluarsa: item.tanggal_kadaluarsa || "", penting: item.penting || false });
+    setSelectedFile(null);
+    setForm({ judul: item.judul, konten: item.konten, kategori: item.kategori || "Umum", target_tipe: item.target_tipe || "semua", departemen_id: item.departemen_id || "", tanggal_tayang: item.tanggal_tayang || format(new Date(), "yyyy-MM-dd"), tanggal_kadaluarsa: item.tanggal_kadaluarsa || "", penting: item.penting || false, lampiran_url: item.lampiran_url || "", lampiran_nama: item.lampiran_nama || "" });
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.judul.trim() || !form.konten.trim()) { toast.error("Judul dan konten wajib diisi"); return; }
+
+    let lampiran_url = form.lampiran_url;
+    let lampiran_nama = form.lampiran_nama;
+
+    // Upload file if selected
+    if (selectedFile) {
+      const ext = selectedFile.name.split(".").pop();
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("dokumen-buletin").upload(path, selectedFile);
+      if (uploadErr) { toast.error("Gagal upload file: " + uploadErr.message); return; }
+      lampiran_url = path;
+      lampiran_nama = selectedFile.name;
+    }
+
     saveMut.mutate({
       judul: form.judul, konten: form.konten, kategori: form.kategori,
       target_tipe: form.target_tipe, departemen_id: form.target_tipe === "lembaga" ? form.departemen_id || null : null,
       tanggal_tayang: form.tanggal_tayang, tanggal_kadaluarsa: form.tanggal_kadaluarsa || null,
-      penting: form.penting,
+      penting: form.penting, lampiran_url: lampiran_url || null, lampiran_nama: lampiran_nama || null,
     });
+  };
+
+  const downloadLampiran = async (url: string, nama: string) => {
+    const { data, error } = await supabase.storage.from("dokumen-buletin").download(url);
+    if (error || !data) { toast.error("Gagal download file"); return; }
+    const blobUrl = URL.createObjectURL(data);
+    const a = document.createElement("a");
+    a.href = blobUrl; a.download = nama || "lampiran"; a.click();
+    URL.revokeObjectURL(blobUrl);
   };
 
   return (
@@ -163,6 +190,14 @@ export default function Buletin() {
                         <p className="text-sm text-muted-foreground mt-2 whitespace-pre-wrap">{a.konten}</p>
                       ) : (
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{a.konten}</p>
+                      )}
+                      {a.lampiran_url && (
+                        <div className="flex items-center gap-1 mt-2" onClick={e => e.stopPropagation()}>
+                          <Paperclip className="h-3 w-3 text-muted-foreground" />
+                          <button className="text-xs text-primary hover:underline" onClick={() => downloadLampiran(a.lampiran_url, a.lampiran_nama || "lampiran")}>
+                            {a.lampiran_nama || "Unduh Lampiran"}
+                          </button>
+                        </div>
                       )}
                       <p className="text-xs text-muted-foreground mt-2">Oleh: {a.penulis?.email || "-"}</p>
                     </div>
@@ -209,6 +244,24 @@ export default function Buletin() {
               <div><Label>Tanggal Kadaluarsa</Label><Input type="date" value={form.tanggal_kadaluarsa} onChange={e => setForm({ ...form, tanggal_kadaluarsa: e.target.value })} /></div>
             </div>
             <div className="flex items-center gap-2"><Switch checked={form.penting} onCheckedChange={v => setForm({ ...form, penting: v })} /><Label>Tandai sebagai Penting</Label></div>
+            <div>
+              <Label>Lampiran File</Label>
+              <div className="flex items-center gap-2 mt-1">
+                <input ref={fileInputRef} type="file" className="hidden" onChange={e => setSelectedFile(e.target.files?.[0] || null)} />
+                <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                  <Paperclip className="h-4 w-4 mr-1" />Pilih File
+                </Button>
+                {selectedFile && (
+                  <div className="flex items-center gap-1 text-sm">
+                    <span className="text-muted-foreground">{selectedFile.name}</span>
+                    <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setSelectedFile(null); if (fileInputRef.current) fileInputRef.current.value = ""; }}><X className="h-3 w-3" /></Button>
+                  </div>
+                )}
+                {!selectedFile && form.lampiran_nama && (
+                  <span className="text-xs text-muted-foreground">File saat ini: {form.lampiran_nama}</span>
+                )}
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Batal</Button>
