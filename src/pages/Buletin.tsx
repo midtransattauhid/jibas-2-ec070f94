@@ -47,11 +47,13 @@ export default function Buletin() {
   const [editItem, setEditItem] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const [form, setForm] = useState({
     judul: "", konten: "", kategori: "Umum", target_tipe: "semua",
     departemen_id: "", tanggal_tayang: format(new Date(), "yyyy-MM-dd"),
-    tanggal_kadaluarsa: "", penting: false,
+    tanggal_kadaluarsa: "", penting: false, lampiran_url: "", lampiran_nama: "",
   });
 
   const { data: depts } = useDepartemen();
