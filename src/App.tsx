@@ -77,6 +77,9 @@ const App = () => (
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
+            {/* Public pages */}
+            <Route path="/infoguru" element={<InfoGuru />} />
+            <Route path="/anjungan" element={<Anjungan />} />
             {/* Portal Orang Tua */}
             <Route path="/portal/login" element={<PortalLogin />} />
             <Route element={<ProtectedPortalRoute />}>
@@ -85,6 +88,8 @@ const App = () => (
                 <Route path="/portal/tagihan" element={<PortalTagihan />} />
                 <Route path="/portal/checkout" element={<PortalCheckout />} />
                 <Route path="/portal/pembayaran" element={<PortalRiwayat />} />
+                <Route path="/portal/presensi" element={<PortalPresensi />} />
+                <Route path="/portal/nilai" element={<PortalNilai />} />
                 <Route path="/portal/profil" element={<PortalProfil />} />
               </Route>
             </Route>
