@@ -113,7 +113,7 @@ export default function InputPembayaran() {
     const result = await createMutation.mutateAsync({
       siswa_id: selectedSiswa.id,
       jenis_id: jenisId,
-      bulan: Number(bulan),
+      bulan: isSekali ? 0 : Number(bulan),
       jumlah: Number(jumlah),
       tanggal_bayar: tanggalBayar,
       keterangan: keterangan || undefined,
@@ -136,7 +136,9 @@ export default function InputPembayaran() {
           .insert({
             nomor: nomorJurnal,
             tanggal: tanggalBayar,
-            keterangan: `Penerimaan ${selectedJenis?.nama} - ${selectedSiswa.nama} (${namaBulan(Number(bulan))})`,
+            keterangan: isSekali
+              ? `Penerimaan ${selectedJenis?.nama} - ${selectedSiswa.nama}`
+              : `Penerimaan ${selectedJenis?.nama} - ${selectedSiswa.nama} (${namaBulan(Number(bulan))})`,
             referensi: result.id,
             departemen_id: departemenId || null,
             total_debit: Number(jumlah),
@@ -159,7 +161,9 @@ export default function InputPembayaran() {
             {
               jurnal_id: jurnal.id,
               akun_id: pendapatanAkunId,
-              keterangan: `${selectedJenis?.nama} - ${selectedSiswa.nama} ${namaBulan(Number(bulan))}`,
+              keterangan: isSekali
+                ? `${selectedJenis?.nama} - ${selectedSiswa.nama}`
+                : `${selectedJenis?.nama} - ${selectedSiswa.nama} ${namaBulan(Number(bulan))}`,
               debit: 0,
               kredit: Number(jumlah),
               urutan: 2,
@@ -178,7 +182,7 @@ export default function InputPembayaran() {
     }
 
     // D. Tampilkan kuitansi
-    setLastPayment({ ...result, jenisNama: selectedJenis?.nama, siswa: selectedSiswa });
+    setLastPayment({ ...result, jenisNama: selectedJenis?.nama, jenisTipe: selectedJenis?.tipe, siswa: selectedSiswa });
     setShowKuitansi(true);
     setJenisId("");
     setJumlah("");
@@ -294,8 +298,8 @@ export default function InputPembayaran() {
                   </Select>
                 </div>
 
-                {/* Grid 12 bulan - auto detect tunggakan */}
-                {jenisId && bulanDibayar && (
+                {/* Grid 12 bulan - hanya untuk tipe bulanan */}
+                {jenisId && !isSekali && bulanDibayar && (
                   <div className="space-y-3">
                     <Label>Status Pembayaran Per Bulan</Label>
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
@@ -332,8 +336,31 @@ export default function InputPembayaran() {
                   </div>
                 )}
 
+                {/* Status sekali bayar */}
+                {jenisId && isSekali && pembayaranSekali && (
+                  <div className="rounded-lg border p-4 space-y-2">
+                    <Label>Status Pembayaran</Label>
+                    {pembayaranSekali.lunas ? (
+                      <div className="flex items-center gap-2 text-emerald-600">
+                        <Check className="h-4 w-4" />
+                        <span className="font-medium">Sudah Lunas — {formatRupiah(pembayaranSekali.totalBayar)}</span>
+                      </div>
+                    ) : (
+                      <div className="text-sm space-y-1">
+                        <p>Nominal: <span className="font-medium">{formatRupiah(Number(selectedJenis?.nominal) || 0)}</span></p>
+                        {pembayaranSekali.totalBayar > 0 && (
+                          <p>Sudah dibayar: <span className="font-medium">{formatRupiah(pembayaranSekali.totalBayar)}</span></p>
+                        )}
+                        <p className="text-destructive font-medium">
+                          Sisa: {formatRupiah((Number(selectedJenis?.nominal) || 0) - pembayaranSekali.totalBayar)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="grid grid-cols-2 gap-4">
-                  {!(jenisId && bulanDibayar) && (
+                  {!isSekali && !(jenisId && bulanDibayar) && (
                     <div>
                       <Label>Bulan</Label>
                       <Select value={bulan} onValueChange={setBulan}>
@@ -346,7 +373,7 @@ export default function InputPembayaran() {
                       </Select>
                     </div>
                   )}
-                  <div className={jenisId && bulanDibayar ? "col-span-2" : ""}>
+                  <div className={(isSekali || (jenisId && bulanDibayar)) ? "col-span-2" : ""}>
                     <Label>Jumlah (Rp)</Label>
                     <Input type="number" value={jumlah} onChange={(e) => setJumlah(e.target.value)} placeholder="0" />
                   </div>
@@ -361,7 +388,7 @@ export default function InputPembayaran() {
                 </div>
                 <Button
                   onClick={handleSubmit}
-                  disabled={!jenisId || !jumlah || createMutation.isPending}
+                  disabled={!jenisId || !jumlah || createMutation.isPending || (isSekali && pembayaranSekali?.lunas)}
                   className="w-full"
                 >
                   {createMutation.isPending ? "Menyimpan..." : "Simpan & Cetak Kuitansi"}
@@ -404,8 +431,12 @@ export default function InputPembayaran() {
                 <span>{kelasNama}</span>
                 <span className="text-muted-foreground">Jenis</span>
                 <span>{lastPayment.jenisNama}</span>
-                <span className="text-muted-foreground">Bulan</span>
-                <span>{namaBulan(lastPayment.bulan)}</span>
+                {lastPayment.jenisTipe !== "sekali" && (
+                  <>
+                    <span className="text-muted-foreground">Bulan</span>
+                    <span>{namaBulan(lastPayment.bulan)}</span>
+                  </>
+                )}
                 <span className="text-muted-foreground">Jumlah</span>
                 <span className="font-bold text-primary">{formatRupiah(lastPayment.jumlah)}</span>
                 <span className="text-muted-foreground">Terbilang</span>
