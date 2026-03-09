@@ -24,6 +24,11 @@ import ReferensiAkademik from "./pages/akademik/ReferensiAkademik";
 import CetakRapor from "./pages/akademik/CetakRapor";
 import LeggerNilai from "./pages/akademik/LeggerNilai";
 import KalenderAkademik from "./pages/akademik/KalenderAkademik";
+import PresensiKBM from "./pages/akademik/PresensiKBM";
+import KomentarRapor from "./pages/akademik/KomentarRapor";
+import RPP from "./pages/akademik/RPP";
+import StatistikSiswa from "./pages/akademik/StatistikSiswa";
+import DataAlumni from "./pages/akademik/DataAlumni";
 import Keuangan from "./pages/Keuangan";
 import InputPembayaran from "./pages/keuangan/InputPembayaran";
 import TunggakanPembayaran from "./pages/keuangan/TunggakanPembayaran";
@@ -120,6 +125,11 @@ const App = () => (
                 <Route path="/akademik/rapor" element={<CetakRapor />} />
                 <Route path="/akademik/legger" element={<LeggerNilai />} />
                 <Route path="/akademik/kalender" element={<KalenderAkademik />} />
+                <Route path="/akademik/presensi-kbm" element={<PresensiKBM />} />
+                <Route path="/akademik/komentar-rapor" element={<KomentarRapor />} />
+                <Route path="/akademik/rpp" element={<RPP />} />
+                <Route path="/akademik/statistik" element={<StatistikSiswa />} />
+                <Route path="/akademik/alumni" element={<DataAlumni />} />
                 {/* Keuangan - accessible by kasir */}
                 <Route path="/keuangan" element={<Keuangan />} />
                 <Route path="/keuangan/pembayaran" element={<InputPembayaran />} />
