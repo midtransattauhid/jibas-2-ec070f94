@@ -39,6 +39,10 @@ import Buletin from "./pages/Buletin";
 import Pengaturan from "./pages/Pengaturan";
 import DetailPegawai from "./pages/kepegawaian/DetailPegawai";
 import LaporanBayarSiswa from "./pages/keuangan/LaporanBayarSiswa";
+import LaporanBayarKelas from "./pages/keuangan/LaporanBayarKelas";
+import RekapHarian from "./pages/keuangan/RekapHarian";
+import PembayaranPSB from "./pages/keuangan/PembayaranPSB";
+import TutupBuku from "./pages/keuangan/TutupBuku";
 import ProfilYayasan from "./pages/pengaturan/ProfilYayasan";
 import ManajemenPengguna from "./pages/pengaturan/ManajemenPengguna";
 import ManajemenOrtu from "./pages/pengaturan/ManajemenOrtu";
@@ -100,6 +104,10 @@ const App = () => (
                   <Route path="/keuangan/tabungan" element={<TabunganSiswa />} />
                   <Route path="/keuangan/laporan" element={<LaporanKeuangan />} />
                   <Route path="/keuangan/laporan-siswa" element={<LaporanBayarSiswa />} />
+                  <Route path="/keuangan/laporan-kelas" element={<LaporanBayarKelas />} />
+                  <Route path="/keuangan/rekap-harian" element={<RekapHarian />} />
+                  <Route path="/keuangan/pembayaran-psb" element={<PembayaranPSB />} />
+                  <Route path="/keuangan/tutup-buku" element={<TutupBuku />} />
                   <Route path="/keuangan/referensi" element={<ReferensiKeuangan />} />
                   <Route path="/keuangan/jurnal" element={<JurnalUmum />} />
                   <Route path="/keuangan/buku-besar" element={<BukuBesar />} />
