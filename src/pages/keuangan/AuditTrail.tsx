@@ -85,10 +85,10 @@ export default function AuditTrail() {
     },
   });
 
-  const totalPenerimaan = (data || []).filter((r) => r.tipe === "penerimaan").reduce((s, r) => s + r.jumlah, 0);
-  const totalPengeluaran = (data || []).filter((r) => r.tipe === "pengeluaran").reduce((s, r) => s + r.jumlah, 0);
+  const totalPenerimaan = (data || []).filter((r: any) => r.tipe === "penerimaan").reduce((s: number, r: any) => s + r.jumlah, 0);
+  const totalPengeluaran = (data || []).filter((r: any) => r.tipe === "pengeluaran").reduce((s: number, r: any) => s + r.jumlah, 0);
 
-  const columns: DataTableColumn<AuditRow>[] = [
+  const columns: DataTableColumn<any>[] = [
     {
       key: "tanggal", label: "Tanggal", sortable: true,
       render: (v) => v ? format(new Date(v as string), "dd MMM yyyy", { locale: idLocale }) : "-",
