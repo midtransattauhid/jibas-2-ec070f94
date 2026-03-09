@@ -33,6 +33,8 @@ import BukuBesar from "./pages/keuangan/BukuBesar";
 import Kepegawaian from "./pages/Kepegawaian";
 import DataPegawai from "./pages/kepegawaian/DataPegawai";
 import PresensiPegawai from "./pages/kepegawaian/PresensiPegawai";
+import JadwalPegawai from "./pages/kepegawaian/JadwalPegawai";
+import StatistikPegawai from "./pages/kepegawaian/StatistikPegawai";
 import CBE from "./pages/CBE";
 import Simtaka from "./pages/Simtaka";
 import Buletin from "./pages/Buletin";

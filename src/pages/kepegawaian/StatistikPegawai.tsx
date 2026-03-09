@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useLembaga } from "@/hooks/useKeuangan";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "@/components/shared/StatsCard";
 import { Users, UserCheck, GraduationCap, Briefcase, Building2, Award, BookOpen } from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
