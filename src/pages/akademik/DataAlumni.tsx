@@ -33,8 +33,8 @@ export default function DataAlumni() {
     { key: "jenis_kelamin", label: "L/P", render: (v) => v === "L" ? "L" : v === "P" ? "P" : "-" },
     { key: "angkatan_nama", label: "Angkatan", sortable: true },
     { key: "tempat_lahir", label: "Tempat Lahir" },
-    { key: "telepon", label: "Telepon", render: (v) => v || "-" },
-    { key: "email", label: "Email", render: (v) => v || "-" },
+    { key: "telepon", label: "Telepon", render: (v) => String(v || "-") },
+    { key: "email", label: "Email", render: (v) => String(v || "-") },
   ];
 
   const totalAlumni = alumniData?.length || 0;
