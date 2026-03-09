@@ -55,6 +55,7 @@ export default function InputPembayaran() {
     },
   });
 
+  const selectedJenis = jenisList?.find((j: any) => j.id === jenisId);
   const isSekali = selectedJenis?.tipe === "sekali";
 
   // Auto-detect tunggakan: cek bulan yang sudah dibayar (untuk tipe bulanan)
@@ -90,8 +91,6 @@ export default function InputPembayaran() {
 
   const sudahBayar = bulanDibayar ? Array.from({ length: 12 }, (_, i) => bulanDibayar.has(i + 1)).filter(Boolean).length : 0;
   const belumBayar = bulanDibayar ? 12 - sudahBayar : 0;
-
-  const selectedJenis = jenisList?.find((j: any) => j.id === jenisId);
 
   const handleSelectSiswa = (s: any) => {
     setSelectedSiswa(s);
