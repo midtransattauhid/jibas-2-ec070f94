@@ -78,6 +78,7 @@ import InfoGuru from "./pages/InfoGuru";
 import Anjungan from "./pages/Anjungan";
 // Pengaturan
 import NotifikasiGateway from "./pages/pengaturan/NotifikasiGateway";
+import BackupExport from "./pages/pengaturan/BackupExport";
 
 const queryClient = new QueryClient();
 
