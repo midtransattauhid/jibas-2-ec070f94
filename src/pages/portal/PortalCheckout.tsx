@@ -274,14 +274,14 @@ export default function PortalCheckout() {
         <Button
           className="flex-1 bg-emerald-600 hover:bg-emerald-700 h-12 text-base"
           onClick={handleBayar}
-          disabled={isLoading}
+          disabled={isLoading || !isMidtransReady}
         >
-          {isLoading ? (
+          {isLoading || isMidtransLoading ? (
             <Loader2 className="h-5 w-5 animate-spin mr-2" />
           ) : (
             <CreditCard className="h-5 w-5 mr-2" />
           )}
-          Bayar {formatRupiah(totalAmount)} Sekarang
+          {isMidtransLoading ? "Memuat..." : `Bayar ${formatRupiah(totalAmount)} Sekarang`}
         </Button>
       </div>
     </div>
