@@ -49,6 +49,7 @@ export default function ReferensiKeuangan() {
         <TabsContent value="akun"><TabAkunRekening /></TabsContent>
         <TabsContent value="pengaturan-akun"><TabPengaturanAkun /></TabsContent>
         <TabsContent value="tahun-buku"><TabTahunBuku /></TabsContent>
+        <TabsContent value="tarif"><TabTarifTagihan /></TabsContent>
         <TabsContent value="template"><TabTemplateNomor /></TabsContent>
       </Tabs>
     </div>
