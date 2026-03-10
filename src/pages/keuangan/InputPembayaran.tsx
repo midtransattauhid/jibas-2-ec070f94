@@ -292,6 +292,7 @@ export default function InputPembayaran() {
                   <Label>Jenis Pembayaran</Label>
                   <Select value={jenisId} onValueChange={(v) => {
                     setJenisId(v);
+                    // Will set jumlah once tarifNominal loads via effect below
                     const j = jenisList?.find((x: any) => x.id === v);
                     if (j?.nominal) setJumlah(String(j.nominal));
                   }}>
@@ -302,6 +303,9 @@ export default function InputPembayaran() {
                       ))}
                     </SelectContent>
                   </Select>
+                  {tarifNominal != null && tarifNominal !== Number(selectedJenis?.nominal || 0) && (
+                    <p className="text-xs text-primary mt-1">⚡ Tarif khusus siswa ini: {formatRupiah(tarifNominal)}</p>
+                  )}
                 </div>
 
                 {/* Grid 12 bulan - hanya untuk tipe bulanan */}
