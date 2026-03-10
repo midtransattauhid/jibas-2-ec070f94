@@ -48,7 +48,7 @@ export default function InputPembayaran() {
     queryFn: async () => {
       const { data } = await supabase
         .from("siswa")
-        .select("id, nis, nama, foto_url, status, kelas_siswa(kelas(nama))")
+        .select("id, nis, nama, foto_url, status, kelas_siswa(kelas_id, kelas(id, nama))")
         .or(`nama.ilike.%${searchTerm}%,nis.ilike.%${searchTerm}%`)
         .eq("status", "aktif")
         .limit(10);
