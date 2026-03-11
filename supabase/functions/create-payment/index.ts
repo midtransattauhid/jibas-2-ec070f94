@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
         email: customer.email,
         phone: customer.telepon || "",
       },
-      item_details: items.map((item, idx) => ({
+      item_details: validatedItems.map((item, idx) => ({
         id: `ITEM-${idx + 1}-${item.bulan}`,
         price: Math.round(item.jumlah),
         quantity: 1,
