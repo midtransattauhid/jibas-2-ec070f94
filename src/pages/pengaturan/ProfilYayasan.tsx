@@ -16,6 +16,8 @@ import { Save, Building2, Plus, Pencil } from "lucide-react";
 
 type DeptRow = Record<string, unknown> & {
   id: string; kode: string | null; nama: string; keterangan: string | null; aktif: boolean | null;
+  alamat: string | null; kota: string | null; telepon: string | null; email: string | null;
+  kepala_sekolah: string | null; npsn: string | null; akreditasi: string | null; logo_url: string | null;
 };
 
 export default function ProfilYayasan() {
@@ -154,7 +156,8 @@ function TabLembaga({ isAdmin }: { isAdmin: boolean }) {
   const columns: DataTableColumn<DeptRow>[] = [
     { key: "kode", label: "Kode", sortable: true },
     { key: "nama", label: "Nama", sortable: true },
-    { key: "keterangan", label: "Keterangan" },
+    { key: "kepala_sekolah", label: "Kepala Sekolah" },
+    { key: "npsn", label: "NPSN" },
     {
       key: "aktif", label: "Status",
       render: (_val: unknown, row: DeptRow) => (
@@ -202,12 +205,25 @@ function DialogLembaga({ open, onOpenChange, initial, onSaved }: {
   const [nama, setNama] = useState(initial?.nama || "");
   const [keterangan, setKeterangan] = useState(initial?.keterangan || "");
   const [aktif, setAktif] = useState(initial?.aktif ?? true);
+  const [alamat, setAlamat] = useState(initial?.alamat || "");
+  const [kota, setKota] = useState(initial?.kota || "");
+  const [telepon, setTelepon] = useState(initial?.telepon || "");
+  const [email, setEmail] = useState(initial?.email || "");
+  const [kepalaSekolah, setKepalaSekolah] = useState(initial?.kepala_sekolah || "");
+  const [npsn, setNpsn] = useState(initial?.npsn || "");
+  const [akreditasi, setAkreditasi] = useState(initial?.akreditasi || "");
+  const [logoUrl, setLogoUrl] = useState(initial?.logo_url || "");
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     if (!nama.trim()) { toast.error("Nama lembaga wajib diisi"); return; }
     setSaving(true);
-    const payload = { kode: kode || null, nama, keterangan: keterangan || null, aktif };
+    const payload = {
+      kode: kode || null, nama, keterangan: keterangan || null, aktif,
+      alamat: alamat || null, kota: kota || null, telepon: telepon || null,
+      email: email || null, kepala_sekolah: kepalaSekolah || null,
+      npsn: npsn || null, akreditasi: akreditasi || null, logo_url: logoUrl || null,
+    };
     let error;
     if (initial) {
       ({ error } = await supabase.from("departemen").update(payload).eq("id", initial.id));
@@ -223,14 +239,36 @@ function DialogLembaga({ open, onOpenChange, initial, onSaved }: {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{initial ? "Edit Lembaga" : "Tambah Lembaga"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="space-y-1.5"><Label>Kode *</Label><Input value={kode} onChange={(e) => setKode(e.target.value)} placeholder="SD" /></div>
-          <div className="space-y-1.5"><Label>Nama *</Label><Input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Sekolah Dasar" /></div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5"><Label>Kode</Label><Input value={kode} onChange={(e) => setKode(e.target.value)} placeholder="SD" /></div>
+            <div className="space-y-1.5"><Label>Nama *</Label><Input value={nama} onChange={(e) => setNama(e.target.value)} placeholder="Sekolah Dasar" /></div>
+          </div>
           <div className="space-y-1.5"><Label>Keterangan</Label><Input value={keterangan} onChange={(e) => setKeterangan(e.target.value)} /></div>
+
+          <div className="border-t pt-4 mt-4">
+            <p className="text-sm font-semibold text-muted-foreground mb-3">Identitas Lembaga (untuk kop surat & rapor)</p>
+            <div className="space-y-3">
+              <div className="shrink-0">
+                <Label className="mb-2 block">Logo Lembaga</Label>
+                <FileUpload bucket="logos-sekolah" value={logoUrl || undefined} onChange={(url) => setLogoUrl(url || "")} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5"><Label>Kepala Sekolah</Label><Input value={kepalaSekolah} onChange={(e) => setKepalaSekolah(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label>NPSN</Label><Input value={npsn} onChange={(e) => setNpsn(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label>Akreditasi</Label><Input value={akreditasi} onChange={(e) => setAkreditasi(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label>Telepon</Label><Input value={telepon} onChange={(e) => setTelepon(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label>Email</Label><Input value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+                <div className="space-y-1.5"><Label>Kota</Label><Input value={kota} onChange={(e) => setKota(e.target.value)} /></div>
+              </div>
+              <div className="space-y-1.5"><Label>Alamat</Label><Input value={alamat} onChange={(e) => setAlamat(e.target.value)} /></div>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3">
             <Switch checked={aktif} onCheckedChange={setAktif} />
             <Label>Aktif</Label>
