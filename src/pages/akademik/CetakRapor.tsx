@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { useDepartemen, useKelas, useTahunAjaran, useSemester } from "@/hooks/useAkademikData";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { Printer, FileText } from "lucide-react";
+import { Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const nilaiHuruf = (n: number) => n >= 90 ? "A" : n >= 80 ? "B" : n >= 70 ? "C" : n >= 60 ? "D" : "E";
@@ -39,16 +39,28 @@ export default function CetakRapor() {
   });
 
   const { data: raporData, isLoading } = useQuery({
-    queryKey: ["rapor_data", siswaId, kelasId, taId, semId],
+    queryKey: ["rapor_data", siswaId, kelasId, taId, semId, deptId],
     enabled: !!siswaId && !!kelasId && !!taId && !!semId,
     queryFn: async () => {
-      const [{ data: mapels }, { data: nilaiData }, { data: presensiData }, { data: sekolahData }, { data: kelasData }] = await Promise.all([
+      const [{ data: mapels }, { data: nilaiData }, { data: presensiData }, { data: sekolahData }, { data: kelasData }, { data: lembagaData }] = await Promise.all([
         supabase.from("mata_pelajaran").select("id, nama, kode").eq("aktif", true).order("nama"),
         supabase.from("penilaian").select("mapel_id, jenis_ujian, nilai").eq("siswa_id", siswaId).eq("kelas_id", kelasId).eq("tahun_ajaran_id", taId).eq("semester_id", semId),
         supabase.from("presensi_siswa").select("status").eq("siswa_id", siswaId).eq("kelas_id", kelasId).eq("tahun_ajaran_id", taId).eq("semester_id", semId),
         supabase.from("sekolah").select("*").limit(1).single(),
-        supabase.from("kelas").select("nama, wali_kelas_id, pegawai:wali_kelas_id(nama)").eq("id", kelasId).single(),
+        supabase.from("kelas").select("nama, wali_kelas_id, departemen_id, pegawai:wali_kelas_id(nama)").eq("id", kelasId).single(),
+        deptId ? supabase.from("departemen").select("*").eq("id", deptId).single() : Promise.resolve({ data: null }),
       ]);
+
+      // Use lembaga data if available, fallback to sekolah (yayasan)
+      const lembaga = lembagaData || {};
+      const identitas = {
+        nama: (lembaga as any)?.nama || sekolahData?.nama || "Sekolah",
+        alamat: (lembaga as any)?.alamat || sekolahData?.alamat || "",
+        npsn: (lembaga as any)?.npsn || sekolahData?.npsn || "",
+        telepon: (lembaga as any)?.telepon || sekolahData?.telepon || "",
+        kepala_sekolah: (lembaga as any)?.kepala_sekolah || sekolahData?.kepala_sekolah || "",
+        logo_url: (lembaga as any)?.logo_url || sekolahData?.logo_url || "",
+      };
 
       // Group nilai by mapel, average all jenis_ujian
       const nilaiByMapel = new Map<string, number[]>();
@@ -85,7 +97,7 @@ export default function CetakRapor() {
       const ta = taList?.find((t: any) => t.id === taId);
       const sem = semList?.find((s: any) => s.id === semId);
 
-      return { rows, presensi, rank, totalSiswa, sekolah: sekolahData, kelas: kelasData, siswa, ta, sem };
+      return { rows, presensi, rank, totalSiswa, identitas, kelas: kelasData, siswa, ta, sem };
     },
   });
 
@@ -142,9 +154,9 @@ export default function CetakRapor() {
               <CardContent className="pt-6">
                 <div ref={printRef}>
                   <div className="header text-center border-b-2 border-foreground pb-3 mb-4">
-                    <h2 className="text-xl font-bold">{raporData.sekolah?.nama || "Sekolah"}</h2>
-                    <p className="text-sm text-muted-foreground">{raporData.sekolah?.alamat}</p>
-                    <p className="text-sm text-muted-foreground">NPSN: {raporData.sekolah?.npsn} | Telp: {raporData.sekolah?.telepon}</p>
+                    <h2 className="text-xl font-bold">{raporData.identitas.nama}</h2>
+                    <p className="text-sm text-muted-foreground">{raporData.identitas.alamat}</p>
+                    <p className="text-sm text-muted-foreground">NPSN: {raporData.identitas.npsn} | Telp: {raporData.identitas.telepon}</p>
                     <Separator className="mt-3" />
                     <p className="font-bold mt-2 text-lg">LAPORAN HASIL BELAJAR SISWA</p>
                     <p className="text-sm">{raporData.sem?.nama} — {raporData.ta?.nama}</p>
@@ -205,7 +217,7 @@ export default function CetakRapor() {
                     <div className="text-center w-48">
                       <p>Kepala Sekolah</p>
                       <div className="mt-16 border-t border-foreground pt-1">
-                        <p className="font-semibold">{raporData.sekolah?.kepala_sekolah || "_______________"}</p>
+                        <p className="font-semibold">{raporData.identitas.kepala_sekolah || "_______________"}</p>
                       </div>
                     </div>
                   </div>

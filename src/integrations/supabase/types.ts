@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      _keep_alive_log: {
+        Row: {
+          id: number
+          pinged_at: string | null
+          source: string | null
+        }
+        Insert: {
+          id?: number
+          pinged_at?: string | null
+          source?: string | null
+        }
+        Update: {
+          id?: number
+          pinged_at?: string | null
+          source?: string | null
+        }
+        Relationships: []
+      }
       akun_rekening: {
         Row: {
           aktif: boolean | null
@@ -123,25 +141,49 @@ export type Database = {
       }
       departemen: {
         Row: {
+          akreditasi: string | null
           aktif: boolean | null
+          alamat: string | null
+          email: string | null
           id: string
+          kepala_sekolah: string | null
           keterangan: string | null
           kode: string | null
+          kota: string | null
+          logo_url: string | null
           nama: string
+          npsn: string | null
+          telepon: string | null
         }
         Insert: {
+          akreditasi?: string | null
           aktif?: boolean | null
+          alamat?: string | null
+          email?: string | null
           id?: string
+          kepala_sekolah?: string | null
           keterangan?: string | null
           kode?: string | null
+          kota?: string | null
+          logo_url?: string | null
           nama: string
+          npsn?: string | null
+          telepon?: string | null
         }
         Update: {
+          akreditasi?: string | null
           aktif?: boolean | null
+          alamat?: string | null
+          email?: string | null
           id?: string
+          kepala_sekolah?: string | null
           keterangan?: string | null
           kode?: string | null
+          kota?: string | null
+          logo_url?: string | null
           nama?: string
+          npsn?: string | null
+          telepon?: string | null
         }
         Relationships: []
       }
