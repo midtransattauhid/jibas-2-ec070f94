@@ -378,22 +378,47 @@ function GenerateTagihanSection() {
             </div>
             <div>
               <Label>Jenis Pembayaran *</Label>
-              <Select value={genJenisId} onValueChange={setGenJenisId}>
+              <Select value={genJenisId} onValueChange={(v) => { setGenJenisId(v); setGenBulanList([]); }}>
                 <SelectTrigger><SelectValue placeholder="Pilih jenis..." /></SelectTrigger>
-                <SelectContent>{jenisList?.filter((j: any) => j.aktif).map((j: any) => <SelectItem key={j.id} value={j.id}>{j.nama}</SelectItem>)}</SelectContent>
+                <SelectContent>{jenisList?.filter((j: any) => j.aktif).map((j: any) => (
+                  <SelectItem key={j.id} value={j.id}>
+                    {j.nama} <span className="text-muted-foreground ml-1">({j.tipe === "sekali" ? "1x bayar" : "bulanan"})</span>
+                  </SelectItem>
+                ))}</SelectContent>
               </Select>
+              {genJenisId && isSekali && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Tipe <Badge variant="outline" className="text-xs">1x Bayar</Badge> — tagihan di-generate tanpa bulan
+                </p>
+              )}
             </div>
             {genJenisId && !isSekali && (
               <div>
                 <Label>Bulan *</Label>
-                <Select value={genBulan} onValueChange={setGenBulan}>
-                  <SelectTrigger><SelectValue placeholder="Pilih bulan..." /></SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <SelectItem key={i + 1} value={String(i + 1)}>{namaBulan(i + 1)}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-2 mb-2">
+                  <Checkbox
+                    id="select-all-months"
+                    checked={allSelected}
+                    onCheckedChange={(checked) => setGenBulanList(checked ? [...allMonths] : [])}
+                  />
+                  <label htmlFor="select-all-months" className="text-sm cursor-pointer">Pilih semua (12 bulan)</label>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {allMonths.map((b) => (
+                    <label key={b} className="flex items-center gap-1.5 text-sm cursor-pointer">
+                      <Checkbox
+                        checked={genBulanList.includes(b)}
+                        onCheckedChange={() => toggleBulan(b)}
+                      />
+                      {namaBulan(b)}
+                    </label>
+                  ))}
+                </div>
+                {genBulanList.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {genBulanList.length} bulan dipilih: {genBulanList.map((b) => namaBulan(b)).join(", ")}
+                  </p>
+                )}
               </div>
             )}
             <div>
@@ -409,8 +434,8 @@ function GenerateTagihanSection() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setGenOpen(false)}>Batal</Button>
-            <Button onClick={handleGenerate} disabled={!genTahunId || !genJenisId || (!isSekali && !genBulan) || generateMut.isPending}>
-              {generateMut.isPending ? "Memproses..." : "Generate Tagihan"}
+            <Button onClick={handleGenerate} disabled={!genTahunId || !genJenisId || (!isSekali && genBulanList.length === 0) || generateMut.isPending}>
+              {generateMut.isPending ? "Memproses..." : `Generate Tagihan${!isSekali && genBulanList.length > 0 ? ` (${genBulanList.length} bulan)` : ""}`}
             </Button>
           </DialogFooter>
         </DialogContent>
