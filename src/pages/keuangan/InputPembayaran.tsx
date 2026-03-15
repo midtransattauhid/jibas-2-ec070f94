@@ -122,7 +122,12 @@ export default function InputPembayaran() {
     // A. Validasi akun tersedia
     const kasAkunId = pengaturanAkun?.find((p: any) => p.kode_setting === "kas_tunai")?.akun?.id;
     const pendapatanAkunId = selectedJenis?.akun_pendapatan_id;
-    const bisaAutoJurnal = kasAkunId && pendapatanAkunId;
+    const piutangAkunId = pengaturanAkun?.find((p: any) => p.kode_setting === "piutang_siswa")?.akun?.id;
+
+    // Determine if this payment should clear piutang (tagihan exists)
+    const hasPiutang = existingTagihan && existingTagihan.status === "belum_bayar";
+    const kreditAkunId = hasPiutang ? piutangAkunId : pendapatanAkunId;
+    const bisaAutoJurnal = kasAkunId && kreditAkunId;
 
     if (!bisaAutoJurnal) {
       toast.warning("Akun jurnal belum dikonfigurasi. Pembayaran tersimpan tanpa jurnal otomatis. Silakan buat jurnal manual.");
@@ -139,7 +144,7 @@ export default function InputPembayaran() {
       departemen_id: departemenId || undefined,
     });
 
-    // C. Auto-jurnal jika akun tersedia
+    // C. Auto-jurnal
     if (bisaAutoJurnal && result?.id) {
       try {
         const tahunPembayaran = new Date(tanggalBayar).getFullYear();
@@ -150,14 +155,17 @@ export default function InputPembayaran() {
         if (rpcError) throw rpcError;
         if (!nomorJurnal) throw new Error("Gagal mendapatkan nomor jurnal");
 
+        const kreditLabel = hasPiutang ? "Piutang" : "Pendapatan";
+        const keteranganJurnal = isSekali
+          ? `Penerimaan ${selectedJenis?.nama} - ${selectedSiswa.nama}`
+          : `Penerimaan ${selectedJenis?.nama} - ${selectedSiswa.nama} (${namaBulan(Number(bulan))})`;
+
         const { data: jurnal, error: jErr } = await supabase
           .from("jurnal")
           .insert({
             nomor: nomorJurnal,
             tanggal: tanggalBayar,
-            keterangan: isSekali
-              ? `Penerimaan ${selectedJenis?.nama} - ${selectedSiswa.nama}`
-              : `Penerimaan ${selectedJenis?.nama} - ${selectedSiswa.nama} (${namaBulan(Number(bulan))})`,
+            keterangan: keteranganJurnal,
             referensi: result.id,
             departemen_id: departemenId || null,
             total_debit: Number(jumlah),
@@ -179,10 +187,8 @@ export default function InputPembayaran() {
             },
             {
               jurnal_id: jurnal.id,
-              akun_id: pendapatanAkunId,
-              keterangan: isSekali
-                ? `${selectedJenis?.nama} - ${selectedSiswa.nama}`
-                : `${selectedJenis?.nama} - ${selectedSiswa.nama} ${namaBulan(Number(bulan))}`,
+              akun_id: kreditAkunId,
+              keterangan: `${kreditLabel} ${selectedJenis?.nama} - ${selectedSiswa.nama}`,
               debit: 0,
               kredit: Number(jumlah),
               urutan: 2,
@@ -200,7 +206,16 @@ export default function InputPembayaran() {
       }
     }
 
-    // D. Tampilkan kuitansi
+    // D. Update tagihan status to lunas if piutang existed
+    if (hasPiutang && result?.id) {
+      try {
+        await updateTagihanLunas.mutateAsync({ id: existingTagihan.id, pembayaran_id: result.id });
+      } catch (err) {
+        console.error("Update tagihan gagal:", err);
+      }
+    }
+
+    // E. Tampilkan kuitansi
     setLastPayment({ ...result, jenisNama: selectedJenis?.nama, jenisTipe: selectedJenis?.tipe, siswa: selectedSiswa });
     setShowKuitansi(true);
     setJenisId("");
