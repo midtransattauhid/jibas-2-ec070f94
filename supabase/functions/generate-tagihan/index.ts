@@ -39,7 +39,14 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    const { tahun_ajaran_id, jenis_id, bulan, departemen_id } = body;
+    const { tahun_ajaran_id, jenis_id, bulan, bulan_list, departemen_id } = body;
+
+    // Support both single bulan and bulan_list (array)
+    const bulanArray: (number | null)[] = bulan_list && Array.isArray(bulan_list) && bulan_list.length > 0
+      ? bulan_list
+      : bulan != null
+        ? [bulan]
+        : [null]; // null = tipe sekali (no month)
 
     if (!tahun_ajaran_id || !jenis_id) {
       throw new Error("tahun_ajaran_id dan jenis_id wajib diisi");
