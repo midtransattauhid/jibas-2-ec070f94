@@ -41,6 +41,9 @@ export default function InputPembayaran() {
   const { data: allJenisList } = useJenisPembayaran(departemenId || undefined);
   const { data: riwayat, isLoading: loadRiwayat } = usePembayaranBySiswa(selectedSiswa?.id);
 
+  // Get kelas_id of the selected student for tarif lookup
+  const siswaKelasId = selectedSiswa?.kelas_siswa?.[0]?.kelas?.id;
+
   // Fetch tarif_tagihan entries applicable to the selected student to filter jenis dropdown
   const { data: applicableTarifJenisIds } = useQuery({
     queryKey: ["applicable_tarif_jenis", selectedSiswa?.id, siswaKelasId, tahunAktif?.id, departemenId],
