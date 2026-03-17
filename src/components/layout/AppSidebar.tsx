@@ -18,6 +18,7 @@ interface SubMenuItem {
   title: string;
   url: string;
   roles?: UserRole[];
+  isGroupLabel?: boolean;
 }
 
 interface MenuItem {
