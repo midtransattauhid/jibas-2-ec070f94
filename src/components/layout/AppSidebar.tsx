@@ -182,8 +182,15 @@ export function AppSidebar() {
                           </SidebarMenuButton>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
-                          <SidebarMenuSub>
-                            {item.children.filter((sub) => !sub.roles || !role || sub.roles.includes(role)).map((sub) => {
+                        <SidebarMenuSub>
+                            {item.children.filter((sub) => !sub.roles || !role || sub.roles.includes(role)).map((sub, idx) => {
+                              if (sub.isGroupLabel) {
+                                return (
+                                  <div key={sub.title} className={cn("px-3 py-1.5 text-[10px] font-semibold text-sidebar-foreground/50 uppercase tracking-wider", idx > 0 && "mt-2")}>
+                                    {sub.title}
+                                  </div>
+                                );
+                              }
                               const subActive = location.pathname === sub.url;
                               return (
                                 <SidebarMenuSubItem key={sub.url}>
