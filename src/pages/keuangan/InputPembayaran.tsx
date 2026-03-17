@@ -350,19 +350,20 @@ export default function InputPembayaran() {
                   <Label>Jenis Pembayaran</Label>
                   <Select value={jenisId} onValueChange={(v) => {
                     setJenisId(v);
-                    // Will set jumlah once tarifNominal loads via effect below
-                    const j = jenisList?.find((x: any) => x.id === v);
-                    if (j?.nominal) setJumlah(String(j.nominal));
+                    setJumlah("");
                   }}>
                     <SelectTrigger><SelectValue placeholder="Pilih jenis" /></SelectTrigger>
                     <SelectContent>
                       {jenisList?.map((j: any) => (
-                        <SelectItem key={j.id} value={j.id}>{j.nama} {j.nominal ? `(${formatRupiah(Number(j.nominal))})` : ""}</SelectItem>
+                        <SelectItem key={j.id} value={j.id}>{j.nama}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {tarifNominal != null && tarifNominal !== Number(selectedJenis?.nominal || 0) && (
-                    <p className="text-xs text-primary mt-1">⚡ Tarif khusus siswa ini: {formatRupiah(tarifNominal)}</p>
+                  {tarifNominal != null && (
+                    <p className="text-xs text-primary mt-1">⚡ Tarif siswa ini: {formatRupiah(tarifNominal)}</p>
+                  )}
+                  {tarifTidakAda && (
+                    <p className="text-xs text-destructive mt-1 font-medium">⚠️ Tarif belum dikonfigurasi untuk siswa ini. Pembayaran tidak dapat dilakukan.</p>
                   )}
                   {existingTagihan && existingTagihan.status === "belum_bayar" && (
                     <p className="text-xs text-amber-600 mt-1">📋 Tagihan piutang ditemukan ({formatRupiah(Number(existingTagihan.nominal))}) — jurnal akan mengkredit Piutang</p>
